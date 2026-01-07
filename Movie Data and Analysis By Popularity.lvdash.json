@@ -1,0 +1,1163 @@
+{
+  "datasets": [
+    {
+      "name": "a4c47a6e",
+      "displayName": "Top Rated Popular Romantic Comedy Drama Movies Dataset",
+      "queryLines": [
+        "SELECT\r\n",
+        "    md.original_title AS `Title`,\r\n",
+        "    CASE md.original_language\r\n",
+        "        WHEN 'en' THEN 'English'\r\n",
+        "        WHEN 'hi' THEN 'Hindi'\r\n",
+        "        WHEN 'fr' THEN 'French'\r\n",
+        "        WHEN 'es' THEN 'Spanish'\r\n",
+        "        WHEN 'ja' THEN 'Japanese'\r\n",
+        "        WHEN 'ko' THEN 'Korean'\r\n",
+        "        WHEN 'de' THEN 'German'\r\n",
+        "        WHEN 'it' THEN 'Italian'\r\n",
+        "        WHEN 'zh' THEN 'Chinese'\r\n",
+        "        ELSE 'Other'\r\n",
+        "    END AS Language,\r\n",
+        "    md.genre AS `Genre`,\r\n",
+        "    md.popularity AS `Popularity`,\r\n",
+        "    md.vote_count AS `Vote Count`,\r\n",
+        "    md.vote_average AS `Average Rating`\r\n",
+        "   \r\n",
+        "FROM movies_dataset md\r\n",
+        "WHERE md.genre LIKE '%Comedy%'\r\n",
+        "  AND md.genre LIKE '%Romance%'\r\n",
+        "  AND md.genre LIKE '%Drama%'\r\n",
+        "  AND md.popularity > 10 and md.vote_count > 1000 and md.vote_average > 7\r\n",
+        "ORDER BY md.vote_average DESC;\r\n"
+      ],
+      "catalog": "datastore2026",
+      "schema": "moviedata"
+    },
+    {
+      "name": "3f722a10",
+      "displayName": "Movie Ratings by Language and Genre with High Popularity",
+      "queryLines": [
+        "SELECT\r\n",
+        "    CASE md.original_language\r\n",
+        "        WHEN 'en' THEN 'English'\r\n",
+        "        WHEN 'hi' THEN 'Hindi'\r\n",
+        "        WHEN 'fr' THEN 'French'\r\n",
+        "        WHEN 'es' THEN 'Spanish'\r\n",
+        "        WHEN 'ja' THEN 'Japanese'\r\n",
+        "        WHEN 'ko' THEN 'Korean'\r\n",
+        "        WHEN 'de' THEN 'German'\r\n",
+        "        WHEN 'it' THEN 'Italian'\r\n",
+        "        WHEN 'zh' THEN 'Chinese'\r\n",
+        "        ELSE 'Other'\r\n",
+        "    END AS Language,\r\n",
+        "    md.genre AS genre,\r\n",
+        "    ROUND(AVG(md.popularity), 2) AS Rating\r\n",
+        "FROM movies_dataset md\r\n",
+        "WHERE md.original_language IS NOT NULL and md.popularity>10 and md.vote_count>100 and md.vote_average>7\r\n",
+        "GROUP BY md.original_language,md.genre\r\n",
+        "ORDER BY MAX(md.vote_average) DESC;\r\n"
+      ],
+      "catalog": "datastore2026",
+      "schema": "moviedata"
+    },
+    {
+      "name": "01199ab5",
+      "displayName": "Recent Movie Titles and Details Dataset",
+      "queryLines": [
+        "SELECT\r\n",
+        "    md.original_title AS Title,\r\n",
+        "    CASE md.original_language\r\n",
+        "        WHEN 'en' THEN 'English'\r\n",
+        "        WHEN 'hi' THEN 'Hindi'\r\n",
+        "        WHEN 'fr' THEN 'French'\r\n",
+        "        WHEN 'es' THEN 'Spanish'\r\n",
+        "        WHEN 'ja' THEN 'Japanese'\r\n",
+        "        WHEN 'ko' THEN 'Korean'\r\n",
+        "        WHEN 'de' THEN 'German'\r\n",
+        "        WHEN 'it' THEN 'Italian'\r\n",
+        "        WHEN 'zh' THEN 'Chinese'\r\n",
+        "        ELSE 'Other'\r\n",
+        "    END AS Language,\r\n",
+        "    md.genre AS Genre,\r\n",
+        "    md.release_date AS ReleaseDate,\r\n",
+        "    YEAR(CURDATE()) - YEAR(md.release_date) AS Years\r\n",
+        "FROM movies_dataset md\r\n",
+        "WHERE md.release_date IS NOT NULL\r\n",
+        "  AND YEAR(md.release_date) <= YEAR(CURDATE())\r\n",
+        "LIMIT 10;\r\n"
+      ],
+      "catalog": "datastore2026",
+      "schema": "moviedata"
+    },
+    {
+      "name": "7c5b433f",
+      "displayName": "Top Language by Movie Count Summary Dataset",
+      "queryLines": [
+        "SELECT\r\n",
+        "    md.original_language AS Language,\r\n",
+        "    COUNT(*) AS `Total Movies`\r\n",
+        "FROM movies_dataset md\r\n",
+        "GROUP BY md.original_language\r\n",
+        "ORDER BY `Total Movies`  Desc LIMIT 1;\r\n"
+      ],
+      "catalog": "datastore2026",
+      "schema": "moviedata"
+    },
+    {
+      "name": "d77d898b",
+      "displayName": "Highest Rated Movie Genre Overview",
+      "queryLines": [
+        "SELECT md.genre as Genre,ROUND(AVG(md.vote_average), 2) AS Rating FROM movies_dataset md GROUP BY md.genre ORDER BY Rating DESC LIMIT 1\r\n"
+      ],
+      "catalog": "datastore2026",
+      "schema": "moviedata"
+    },
+    {
+      "name": "37fbd56d",
+      "displayName": "Top Movie by Popularity from Movies Dataset",
+      "queryLines": [
+        "SELECT original_title as Title, popularity as Popularity\r\n",
+        "FROM movies_dataset\r\n",
+        "ORDER BY popularity DESC\r\n",
+        "LIMIT 1;\r\n"
+      ],
+      "catalog": "datastore2026",
+      "schema": "moviedata"
+    },
+    {
+      "name": "59f353a7",
+      "displayName": "Movie Language Distribution and Percentage Breakdown",
+      "queryLines": [
+        "SELECT\r\n",
+        "    original_language,\r\n",
+        "    COUNT(*) AS `Movie Count`,\r\n",
+        "    ROUND(\r\n",
+        "        COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (),\r\n",
+        "        2\r\n",
+        "    ) AS `Percentage Share`\r\n",
+        "FROM movies_dataset\r\n",
+        "GROUP BY original_language\r\n",
+        "ORDER BY `Movie Count` DESC limit 20;\r\n"
+      ],
+      "catalog": "datastore2026",
+      "schema": "moviedata"
+    },
+    {
+      "name": "91c6b37f",
+      "displayName": "Top Twenty Genres Ranked by Average Movie Ratings",
+      "queryLines": [
+        "SELECT\r\n",
+        "    TRIM(g.genre) AS Genre,\r\n",
+        "    COUNT(*) AS `Movie Count`,\r\n",
+        "    \r\n",
+        "    ROUND(AVG(md.vote_average), 2) AS `Average Popularity`\r\n",
+        "\r\n",
+        "FROM movies_dataset md\r\n",
+        "JOIN (\r\n",
+        "    SELECT id, SUBSTRING_INDEX(SUBSTRING_INDEX(genre, ',', n.n), ',', -1) AS genre\r\n",
+        "    FROM movies_dataset\r\n",
+        "    JOIN (\r\n",
+        "        SELECT 1 n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5\r\n",
+        "    ) n\r\n",
+        "    ON CHAR_LENGTH(genre) - CHAR_LENGTH(REPLACE(genre, ',', '')) >= n.n - 1\r\n",
+        ") g ON md.id = g.id\r\n",
+        "GROUP BY g.genre\r\n",
+        "ORDER BY  `Average Popularity` DESC LIMIT 20;\r\n"
+      ],
+      "catalog": "datastore2026",
+      "schema": "moviedata"
+    },
+    {
+      "name": "ac7b7285",
+      "displayName": "Movie Ratings and Popularity Averages Dataset",
+      "queryLines": [
+        "SELECT\r\n",
+        "    vote_average,\r\n",
+        "    ROUND(AVG(popularity), 2) AS avg_popularity\r\n",
+        "FROM movies_dataset\r\n",
+        "WHERE vote_count > 500 and vote_average > 7\r\n",
+        "GROUP BY vote_average\r\n",
+        "ORDER BY vote_average DESC LIMIT 50;\r\n"
+      ],
+      "catalog": "datastore2026",
+      "schema": "moviedata"
+    }
+  ],
+  "pages": [
+    {
+      "name": "29b7e751",
+      "displayName": "Movie Data and Analysis By Popularity",
+      "layout": [
+        {
+          "widget": {
+            "name": "aef6232d",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# <span style=\"text-align:center;display:block;\"><span style=\"font-family: Georgia;\">**Movie Data and Analysis By Popularity**</span></span>"
+              ]
+            },
+            "specExtensions": {
+              "widgetBackgroundColor": {
+                "dark": "#966E48"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "top-rated-genre",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "d77d898b",
+                  "fields": [
+                    {
+                      "name": "Genre",
+                      "expression": "`Genre`"
+                    },
+                    {
+                      "name": "Rating",
+                      "expression": "`Rating`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "Genre",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100000,
+                    "title": "Genre",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "Rating",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100001,
+                    "title": "Rating",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  }
+                ]
+              },
+              "invisibleColumns": [],
+              "allowHTMLByDefault": false,
+              "itemsPerPage": 25,
+              "paginationSize": "default",
+              "condensed": false,
+              "withRowNumber": false,
+              "frame": {
+                "showTitle": true,
+                "title": "Top Rated Genre",
+                "headerAlignment": "center"
+              }
+            },
+            "specExtensions": {
+              "widgetBackgroundColor": {
+                "dark": "#D18C30"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "top-released-movies-language",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "7c5b433f",
+                  "fields": [
+                    {
+                      "name": "Language",
+                      "expression": "`Language`"
+                    },
+                    {
+                      "name": "Total Movies",
+                      "expression": "`Total Movies`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "Language",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100000,
+                    "title": "Language",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "Total Movies",
+                    "numberFormat": "0",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "integer",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100001,
+                    "title": "Total Movies",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  }
+                ]
+              },
+              "invisibleColumns": [],
+              "allowHTMLByDefault": false,
+              "itemsPerPage": 5,
+              "paginationSize": "default",
+              "condensed": false,
+              "withRowNumber": false,
+              "firstNFrozenColumns": 0,
+              "frame": {
+                "showTitle": true,
+                "title": "Top Released Movies In Language",
+                "headerAlignment": "center"
+              }
+            },
+            "specExtensions": {
+              "widgetBackgroundColor": {
+                "dark": "#AC87A0"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "top-most-popular-movie",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "37fbd56d",
+                  "fields": [
+                    {
+                      "name": "Title",
+                      "expression": "`Title`"
+                    },
+                    {
+                      "name": "Popularity",
+                      "expression": "`Popularity`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "Title",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100000,
+                    "title": "Title",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "Popularity",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100001,
+                    "title": "Popularity",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  }
+                ]
+              },
+              "invisibleColumns": [],
+              "allowHTMLByDefault": false,
+              "itemsPerPage": 25,
+              "paginationSize": "default",
+              "condensed": false,
+              "withRowNumber": false,
+              "frame": {
+                "showTitle": true,
+                "title": "Top Most Popular Movie",
+                "headerAlignment": "center"
+              }
+            },
+            "specExtensions": {
+              "widgetBackgroundColor": {
+                "dark": "#CA2530"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "top-languages-romantic-comedy-drama-movies",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a4c47a6e",
+                  "fields": [
+                    {
+                      "name": "Title",
+                      "expression": "`Title`"
+                    },
+                    {
+                      "name": "Language",
+                      "expression": "`Language`"
+                    },
+                    {
+                      "name": "Genre",
+                      "expression": "`Genre`"
+                    },
+                    {
+                      "name": "Popularity",
+                      "expression": "`Popularity`"
+                    },
+                    {
+                      "name": "Vote Count",
+                      "expression": "`Vote Count`"
+                    },
+                    {
+                      "name": "Average Rating",
+                      "expression": "`Average Rating`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "Title",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100000,
+                    "title": "Title",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "Language",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100001,
+                    "title": "Language",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "Genre",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100002,
+                    "title": "Genre",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "Popularity",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100003,
+                    "title": "Popularity",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "Vote Count",
+                    "numberFormat": "0",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "integer",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100004,
+                    "title": "Vote Count",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "Average Rating",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100005,
+                    "title": "Average Rating",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  }
+                ]
+              },
+              "invisibleColumns": [],
+              "allowHTMLByDefault": false,
+              "itemsPerPage": 5,
+              "paginationSize": "default",
+              "condensed": false,
+              "withRowNumber": false,
+              "frame": {
+                "title": "Top Languages in Romantic Comedy Drama Movies",
+                "showTitle": true,
+                "headerAlignment": "center"
+              }
+            },
+            "specExtensions": {
+              "widgetBackgroundColor": {
+                "dark": "#355360"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 3,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "movies-ratings-language-genre",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3f722a10",
+                  "fields": [
+                    {
+                      "name": "Language",
+                      "expression": "`Language`"
+                    },
+                    {
+                      "name": "genre",
+                      "expression": "`genre`"
+                    },
+                    {
+                      "name": "Rating",
+                      "expression": "`Rating`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "Language",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100000,
+                    "title": "Language",
+                    "allowSearch": true,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "genre",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100001,
+                    "title": "genre",
+                    "allowSearch": true,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  },
+                  {
+                    "fieldName": "Rating",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100002,
+                    "title": "Rating",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false
+                  }
+                ]
+              },
+              "invisibleColumns": [],
+              "allowHTMLByDefault": false,
+              "itemsPerPage": 25,
+              "paginationSize": "default",
+              "condensed": false,
+              "withRowNumber": false,
+              "frame": {
+                "showTitle": true,
+                "title": "Movies Ratings By Language and Genre",
+                "headerAlignment": "center"
+              }
+            },
+            "specExtensions": {
+              "widgetBackgroundColor": {
+                "dark": "#3F5370"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 4,
+            "width": 3,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "movies-language1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "01199ab5",
+                  "fields": [
+                    {
+                      "name": "Years",
+                      "expression": "`Years`"
+                    },
+                    {
+                      "name": "Genre",
+                      "expression": "`Genre`"
+                    },
+                    {
+                      "name": "Language",
+                      "expression": "`Language`"
+                    },
+                    {
+                      "name": "Title",
+                      "expression": "`Title`"
+                    },
+                    {
+                      "name": "count(Title)",
+                      "expression": "COUNT(`Title`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Language",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "count(Title)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false
+                },
+                "extra": [
+                  {
+                    "fieldName": "Years"
+                  },
+                  {
+                    "fieldName": "Genre"
+                  },
+                  {
+                    "fieldName": "Language"
+                  },
+                  {
+                    "fieldName": "Title"
+                  },
+                  {
+                    "fieldName": "Title"
+                  }
+                ]
+              },
+              "frame": {
+                "title": "Movies by Language",
+                "showTitle": true,
+                "headerAlignment": "center"
+              },
+              "mark": {
+                "colors": [
+                  "#5C038C",
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              }
+            },
+            "specExtensions": {
+              "widgetBackgroundColor": {
+                "dark": "#1B1734"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 3,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "popularity-vs-ratings",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ac7b7285",
+                  "fields": [
+                    {
+                      "name": "avg_popularity",
+                      "expression": "`avg_popularity`"
+                    },
+                    {
+                      "name": "vote_average",
+                      "expression": "`vote_average`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "avg_popularity",
+                  "displayName": "Avg Popularity",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "vote_average",
+                  "displayName": "Vote Average",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "frame": {
+                "title": "Popularity vs. Ratings",
+                "showTitle": true,
+                "headerAlignment": "center"
+              },
+              "mark": {
+                "opacity": 0.83,
+                "colors": [
+                  "#A5CFE3",
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ],
+                "size": -1.4
+              }
+            },
+            "specExtensions": {
+              "widgetBackgroundColor": {
+                "dark": "#00221C"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 10,
+            "width": 3,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#FAFAFB",
+        "dark": "#2897B0"
+      },
+      "widgetBackgroundColor": {
+        "light": "#FFFFFF",
+        "dark": "#11171C"
+      },
+      "fontColor": {
+        "light": "#11171C",
+        "dark": "#E8ECF0"
+      },
+      "selectionColor": {
+        "light": "#2272B4",
+        "dark": "#8ACAFF"
+      },
+      "widgetHeaderAlignment": "LEFT"
+    },
+    "applyModeEnabled": false
+  }
+}
